@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HOST Control</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    font-size: 15px;
+    background: #f4f5f7;
+    color: #2c2c2c;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 16px 60px;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 620px;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 28px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .lock-icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 6px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 12px;
+    color: #555;
+    background: #e8eaed;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  /* Card */
+  .card {
+    background: #fff;
+    border: 1px solid #dde1e7;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 14px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid #dde1e7;
+    margin-bottom: 20px;
+    gap: 0;
+  }
+
+  .tab {
+    padding: 9px 20px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: #888;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    margin-bottom: -1px;
+  }
+
+  .tab:hover { color: #333; }
+
+  .tab.active {
+    color: #1a56db;
+    border-bottom-color: #1a56db;
+  }
+
+  /* Labels */
+  .field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .char-count {
+    font-weight: 400;
+    color: #aaa;
+    font-size: 12px;
+  }
+
+  .field-group {
+    margin-bottom: 16px;
+  }
+
+  /* Inputs */
+  textarea, input[type="password"], input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: #fafafa;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: #1a1a1a;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    resize: vertical;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+
+  textarea:focus, input:focus {
+    border-color: #1a56db;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+    background: #fff;
+  }
+
+  textarea { min-height: 120px; }
+
+  /* Password wrap */
+  .pass-wrap {
+    position: relative;
+  }
+
+  .pass-wrap input {
+    padding-right: 42px;
+  }
+
+  .eye-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 2px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+
+  .eye-btn:hover { color: #555; }
+
+  /* Strength meter */
+  .strength-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 7px;
+    align-items: center;
+  }
+
+  .strength-bar {
+    flex: 1;
+    height: 3px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    transition: background 0.25s;
+  }
+
+  .strength-bar.active-weak  { background: #ef4444; }
+  .strength-bar.active-fair  { background: #f59e0b; }
+  .strength-bar.active-good  { background: #22c55e; }
+
+  .strength-label {
+    font-size: 11px;
+    color: #888;
+    min-width: 44px;
+    text-align: right;
+  }
+
+  /* Action button */
+  .action-btn {
+    width: 100%;
+    padding: 11px;
+    border: none;
+    border-radius: 6px;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 4px;
+  }
+
+  .action-btn:active { transform: scale(0.99); }
+  .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .encrypt-btn { background: #16a34a; color: #fff; }
+  .encrypt-btn:hover:not(:disabled) { background: #15803d; }
+
+  .decrypt-btn { background: #1a56db; color: #fff; }
+  .decrypt-btn:hover:not(:disabled) { background: #1d4ed8; }
+
+  /* Spinner */
+  .btn-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  .loading .spinner { display: block; }
+  .loading .btn-text::after { content: 'ing...'; }
+
+  /* Output area */
+  .output-area {
+    background: #fafafa;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 80px;
+    word-break: break-all;
+    color: #1a1a1a;
+    transition: border-color 0.2s;
+  }
+
+  .output-area.success { border-color: #22c55e; }
+  .output-area.error   { border-color: #ef4444; color: #dc2626; }
+  .output-area .placeholder { color: #bbb; }
+
+  .out-status {
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  /* Output actions */
+  .output-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .small-btn {
+    flex: 1;
+    padding: 8px 10px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: #555;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+
+  .small-btn:hover {
+    border-color: #1a56db;
+    color: #1a56db;
+    background: #eff3ff;
+  }
+
+  /* Info strip */
+  .info-strip {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #dde1e7;
+    border-radius: 8px;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .info-item .dot {
+    width: 5px;
+    height: 5px;
+    background: #22c55e;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: #1e1e1e;
+    color: #fff;
+    padding: 9px 18px;
+    border-radius: 6px;
+    font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    z-index: 100;
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  .toast.green { background: #15803d; }
+  .toast.red   { background: #dc2626; }
+  .toast.cyan  { background: #1a56db; }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  #encrypt-panel, #decrypt-panel { display: none; }
+  #encrypt-panel.active, #decrypt-panel.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- <header>
+    <div class="header-top">
+      <span class="lock-icon">🔐</span>
+      <h1>AES-256 Vault</h1>
+    </div>
+    <div class="subtitle">Client-side encryption — nothing leaves your browser</div>
+    <span class="badge">AES-GCM · PBKDF2 · 150,000 iterations</span>
+  </header> -->
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="setMode('encrypt')">↑ Encrypt</button>
+      <button class="tab" onclick="setMode('decrypt')">↓ Decrypt</button>
+    </div>
+
+    <!-- ENCRYPT PANEL -->
+    <div id="encrypt-panel" class="active">
+      <div class="field-group">
+        <div class="field-label">
+          Plaintext
+          <span class="char-count" id="enc-count">0 chars</span>
+        </div>
+        <textarea id="enc-text" placeholder="Type or paste the text you want to encrypt…" oninput="updateCount('enc-text','enc-count')"></textarea>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Passphrase</div>
+        <div class="pass-wrap">
+          <input type="password" id="enc-pass" placeholder="Enter a strong passphrase…" oninput="updateStrength(this.value)" />
+          <button class="eye-btn" onclick="toggleVis('enc-pass',this)" title="Show/hide">👁</button>
+        </div>
+        <div class="strength-row">
+          <div class="strength-bar" id="s1"></div>
+          <div class="strength-bar" id="s2"></div>
+          <div class="strength-bar" id="s3"></div>
+          <div class="strength-bar" id="s4"></div>
+          <div class="strength-label" id="s-label"></div>
+        </div>
+      </div>
+
+      <button class="action-btn encrypt-btn" id="enc-btn" onclick="encrypt()">
+        <div class="btn-inner"><div class="spinner"></div><span class="btn-text">Encrypt</span></div>
+      </button>
+    </div>
+
+    <!-- DECRYPT PANEL -->
+    <div id="decrypt-panel">
+      <div class="field-group">
+        <div class="field-label">
+          Encrypted Payload
+          <span class="char-count" id="dec-count">0 chars</span>
+        </div>
+        <textarea id="dec-text" placeholder="Paste encrypted base64 payload here…" oninput="updateCount('dec-text','dec-count')"></textarea>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Passphrase</div>
+        <div class="pass-wrap">
+          <input type="password" id="dec-pass" placeholder="Enter passphrase used to encrypt…" />
+          <button class="eye-btn" onclick="toggleVis('dec-pass',this)" title="Show/hide">👁</button>
+        </div>
+      </div>
+
+      <button class="action-btn decrypt-btn" id="dec-btn" onclick="decrypt()">
+        <div class="btn-inner"><div class="spinner"></div><span class="btn-text">Decrypt</span></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="card">
+    <div class="field-label">
+      Output
+      <span class="out-status" id="out-status"></span>
+    </div>
+    <div class="output-area" id="output">
+      <span class="placeholder">Result will appear here…</span>
+    </div>
+    <div class="output-actions">
+      <button class="small-btn" onclick="copyOutput()">⧉ Copy</button>
+      <button class="small-btn" onclick="sendToInput()">↩ Use as Input</button>
+      <button class="small-btn" onclick="clearAll()">✕ Clear All</button>
+    </div>
+  </div>
+
+  <!-- <div class="info-strip">
+    <div class="info-item"><div class="dot"></div>All operations run locally</div>
+    <div class="info-item"><div class="dot"></div>AES-256-GCM authenticated encryption</div>
+    <div class="info-item"><div class="dot"></div>Random IV + salt per encryption</div>
+    <div class="info-item"><div class="dot"></div>PBKDF2-SHA256 key derivation</div>
+  </div> -->
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentMode = 'encrypt';
+let lastOutput = '';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('encrypt-panel').classList.toggle('active', mode === 'encrypt');
+  document.getElementById('decrypt-panel').classList.toggle('active', mode === 'decrypt');
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && mode === 'encrypt') || (i === 1 && mode === 'decrypt'));
+  });
+  resetOutput();
+}
+
+function toast(msg, type = 'green') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+function resetOutput() {
+  const out = document.getElementById('output');
+  out.innerHTML = '<span class="placeholder">Result will appear here…</span>';
+  out.className = 'output-area';
+  document.getElementById('out-status').textContent = '';
+  lastOutput = '';
+}
+
+function updateCount(textareaId, countId) {
+  const val = document.getElementById(textareaId).value;
+  document.getElementById(countId).textContent = `${val.length} chars`;
+}
+
+function toggleVis(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+function updateStrength(pass) {
+  let score = 0;
+  if (pass.length >= 10) score++;
+  if (pass.length >= 16) score++;
+  if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score++;
+  if (/\d/.test(pass)) score++;
+  if (/[^A-Za-z0-9]/.test(pass)) score++;
+  score = Math.min(score, 4);
+
+  const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+  const cls    = ['', 'active-weak', 'active-fair', 'active-good', 'active-good'];
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('s' + i).className = 'strength-bar' + (i <= score ? ' ' + cls[score] : '');
+  }
+  document.getElementById('s-label').textContent = pass.length ? labels[score] : '';
+}
+
+async function getKey(password, salt) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+function setLoading(btnId, on) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = on;
+  btn.classList.toggle('loading', on);
+}
+
+async function encrypt() {
+  const text = document.getElementById('enc-text').value.trim();
+  const pass = document.getElementById('enc-pass').value;
+  if (!text) { toast('Enter text to encrypt', 'red'); return; }
+  if (!pass) { toast('Enter a passphrase', 'red'); return; }
+
+  setLoading('enc-btn', true);
+  try {
+    const enc = new TextEncoder();
+    const iv   = crypto.getRandomValues(new Uint8Array(12));
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key  = await getKey(pass, salt);
+    const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(text));
+    const payload = { v: 1, iv: Array.from(iv), salt: Array.from(salt), data: Array.from(new Uint8Array(encrypted)) };
+    lastOutput = btoa(JSON.stringify(payload));
+
+    const out = document.getElementById('output');
+    out.textContent = lastOutput;
+    out.className = 'output-area success';
+    document.getElementById('out-status').textContent = `${lastOutput.length} chars`;
+    toast('Encrypted ✓', 'green');
+  } catch (e) {
+    const out = document.getElementById('output');
+    out.textContent = 'Encryption failed: ' + e.message;
+    out.className = 'output-area error';
+    toast('Encryption failed', 'red');
+  }
+  setLoading('enc-btn', false);
+}
+
+async function decrypt() {
+  const input = document.getElementById('dec-text').value.trim();
+  const pass  = document.getElementById('dec-pass').value;
+  if (!input) { toast('Paste encrypted payload', 'red'); return; }
+  if (!pass)  { toast('Enter the passphrase', 'red'); return; }
+
+  setLoading('dec-btn', true);
+  try {
+    const payload = JSON.parse(atob(input));
+    const iv   = new Uint8Array(payload.iv);
+    const salt = new Uint8Array(payload.salt);
+    const data = new Uint8Array(payload.data);
+    const key  = await getKey(pass, salt);
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+    lastOutput = new TextDecoder().decode(decrypted);
+
+    const out = document.getElementById('output');
+    out.textContent = lastOutput;
+    out.className = 'output-area success';
+    document.getElementById('out-status').textContent = `${lastOutput.length} chars`;
+    toast('Decrypted ✓', 'cyan');
+  } catch (e) {
+    const out = document.getElementById('output');
+    out.textContent = 'Decryption failed — wrong passphrase or corrupted data.';
+    out.className = 'output-area error';
+    toast('Decryption failed', 'red');
+  }
+  setLoading('dec-btn', false);
+}
+
+function copyOutput() {
+  if (!lastOutput) { toast('Nothing to copy', 'red'); return; }
+  navigator.clipboard.writeText(lastOutput).then(() => toast('Copied ✓', 'green'));
+}
+
+function sendToInput() {
+  if (!lastOutput) { toast('No output to use', 'red'); return; }
+  if (currentMode === 'encrypt') {
+    setMode('decrypt');
+    document.getElementById('dec-text').value = lastOutput;
+    updateCount('dec-text', 'dec-count');
+  } else {
+    setMode('encrypt');
+    document.getElementById('enc-text').value = lastOutput;
+    updateCount('enc-text', 'enc-count');
+  }
+  toast('Moved to input ↩', 'cyan');
+}
+
+function clearAll() {
+  ['enc-text', 'dec-text', 'enc-pass', 'dec-pass'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  updateCount('enc-text', 'enc-count');
+  updateCount('dec-text', 'dec-count');
+  updateStrength('');
+  resetOutput();
+  toast('Cleared', 'green');
+}
+</script>
+</body>
+</html>
